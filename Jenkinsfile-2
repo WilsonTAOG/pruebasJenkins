@@ -1,7 +1,9 @@
 pipeline {
-    agent any
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '5'))
+    agent {
+        docker {
+            image 'sonarsource/sonar-scanner-cli:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
     }
     stages {
         stage('Clone') {
@@ -16,12 +18,6 @@ pipeline {
             }
         }
         stage('Scan') {
-            agent {
-                docker {
-                    image 'sonarsource/sonar-scanner-cli:latest'
-                    args '-v $HOME/.sonar/cache:/root/.sonar/cache'
-                }
-            }
             steps {
                 withSonarQubeEnv('sq1') {
                     sh '''
