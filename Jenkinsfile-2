@@ -1,48 +1,45 @@
 pipeline {
     agent any
-    environment {
-        // Define environment variables
-        SONARQUBE_URL = 'http://localhost:9000/'
-    }
     options {
-        // Opciones del pipeline, como descartar builds antiguos
         buildDiscarder(logRotator(numToKeepStr: '5'))
     }
     stages {
         stage('Clone') {
             steps {
-                // Clonar el repositorio de Git
                 git url: 'https://github.com/WilsonTAOG/pruebasJenkins.git', branch: 'main'
             }
         }
         stage('Build') {
             steps {
-                // Construir el proyecto (cambiar estos comandos según tu proyecto)
                 sh 'echo "Building the project..."'
-                // Añade aquí los comandos específicos para construir tu proyecto
+                // Aquí irían los comandos para construir tu proyecto si es necesario
             }
         }
-        stage('SonarQube analysis') {
+        stage('Scan') {
+            agent {
+                docker {
+                    image 'sonarsource/sonar-scanner-cli:latest'
+                    args '-v $HOME/.sonar/cache:/root/.sonar/cache'
+                }
+            }
             steps {
-                // Ejecutar el análisis de SonarQube
-                withSonarQubeEnv('sq1') { // 'sq1' es el nombre de tu configuración de SonarQube en Jenkins
-                    // Ajusta este comando según tu configuración de SonarQube
-                    sh 'sonar-scanner \
-                        -Dsonar.projectKey=pruebasJenkins \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONARQUBE_URL \
-                        -Dsonar.login=your-sonarqube-token'
+                withSonarQubeEnv('sq1') {
+                    sh '''
+                    sonar-scanner \
+                    -Dsonar.projectKey=pruebasJenkins \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=$SONARQUBE_URL \
+                    -Dsonar.login=$SONARQUBE_TOKEN
+                    '''
                 }
             }
         }
     }
     post {
         success {
-            // Acciones a realizar si el pipeline tiene éxito
             echo 'Pipeline completed successfully'
         }
         failure {
-            // Acciones a realizar si el pipeline falla
             echo 'Pipeline failed'
         }
     }
