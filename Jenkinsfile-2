@@ -17,16 +17,21 @@ pipeline {
         }
         stage('Build') {
             steps {
-                // Construir el proyecto utilizando Maven
-                // sh 'chmod +x mvnw' // Asegúrate de que mvnw tiene permisos de ejecución
-                // sh './mvnw clean install'
+                // Construir el proyecto (cambiar estos comandos según tu proyecto)
+                sh 'echo "Building the project..."'
+                // Añade aquí los comandos específicos para construir tu proyecto
             }
         }
         stage('SonarQube analysis') {
             steps {
                 // Ejecutar el análisis de SonarQube
                 withSonarQubeEnv('sq1') { // 'sq1' es el nombre de tu configuración de SonarQube en Jenkins
-                   // sh './mvnw sonar:sonar'
+                    // Ajusta este comando según tu configuración de SonarQube
+                    sh 'sonar-scanner \
+                        -Dsonar.projectKey=pruebasJenkins \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONARQUBE_URL \
+                        -Dsonar.login=your-sonarqube-token'
                 }
             }
         }
