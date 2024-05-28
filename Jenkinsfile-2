@@ -1,32 +1,18 @@
 pipeline {
-    agent {
-        docker {
-            image 'sonarsource/sonar-scanner-cli:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
     stages {
         stage('Clone') {
             steps {
                 git url: 'https://github.com/WilsonTAOG/pruebasJenkins.git', branch: 'main'
             }
         }
-        stage('Build') {
+        stage('Check SonarQube Connection') {
             steps {
-                sh 'echo "Building the project..."'
-                // Aquí irían los comandos para construir tu proyecto si es necesario
-            }
-        }
-        stage('Scan') {
-            steps {
-                withSonarQubeEnv('sq1') {
-                    sh '''
-                    sonar-scanner \
-                    -Dsonar.projectKey=pruebasJenkins \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=$SONARQUBE_URL \
-                    -Dsonar.login=$SONARQUBE_TOKEN
-                    '''
+                script {
+                    def scannerHome = tool 'sq1';
+                    withSonarQubeEnv('sq1') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=pruebasJenkins"
+                    }
                 }
             }
         }
