@@ -1,15 +1,14 @@
 pipeline {
-  agent any
-  options {
-    buildDiscarder(logRotator(numToKeepStr: '5'))
-  }
-  stages {
-    stage('Scan') {
-      steps {
-        withSonarQubeEnv(installationName: 'sq1') { 
-          echo 'Hola mundo'
+    agent any
+    stages {
+        stage('Test SonarQube Connection') {
+            steps {
+                script {
+                    def sonarUrl = env.sq1
+                    // El comando 'curl' realiza una solicitud HTTP GET a SonarQube
+                    sh "curl -I \${sonarUrl}"
+                }
+            }
         }
-      }
     }
-  }
 }
