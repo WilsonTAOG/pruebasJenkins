@@ -10,8 +10,8 @@ pipeline {
             steps {
                 script {
                     def scannerHome = tool 'sq1';
-                    withSonarQubeEnv('sq1') {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=pruebasJenkins"
+                    withSonarQubeEnv(installationName: 'sq1') { 
+                       sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=pruebasJenkins"
                     }
                 }
             }
